@@ -125,8 +125,8 @@ class QLearner:
         self.mac.cuda()
         self.target_mac.cuda()
         if self.mixer is not None:
-            self.mixer.cuda()
-            self.target_mixer.cuda()
+            self.mixer.cuda(int(self.args.device_id))
+            self.target_mixer.cuda(int(self.args.device_id))
 
     def save_models(self, path):
         self.mac.save_models(path)

@@ -159,11 +159,11 @@ class QLearner:
         self.logger.console_logger.info("Updated target network")
 
     def cuda(self):
-        self.mac.cuda()
-        self.target_mac.cuda()
+        self.mac.cuda().device(int(self.args.device_id))
+        self.target_mac.cuda().device(int(self.args.device_id))
         if self.mixer is not None:
-            self.mixer.cuda()
-            self.target_mixer.cuda()
+            self.mixer.cuda().device(int(self.args.device_id))
+            self.target_mixer.cuda().device(int(self.args.device_id))
 
     def save_models(self, path):
         self.mac.save_models(path)

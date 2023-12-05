@@ -152,9 +152,9 @@ class COMALearner:
         self.logger.console_logger.info("Updated target network")
 
     def cuda(self):
-        self.mac.cuda()
-        self.critic.cuda()
-        self.target_critic.cuda()
+        self.mac.cuda().device(int(self.args.device_id))
+        self.critic.cuda().device(int(self.args.device_id))
+        self.target_critic.cuda().device(int(self.args.device_id))
 
     def save_models(self, path):
         self.mac.save_models(path)

@@ -63,7 +63,7 @@ class BasicMAC:
         self.agent.load_state_dict(other_mac.agent.state_dict())
 
     def cuda(self):
-        self.agent.cuda()
+        self.agent.cuda(int(self.args.device_id))
 
     def save_models(self, path):
         th.save(self.agent.state_dict(), "{}/agent.th".format(path))
