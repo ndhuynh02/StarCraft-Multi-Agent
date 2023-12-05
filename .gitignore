@@ -1,8 +1,9 @@
-tb_logs/
 results/
 
 __pycache__/
 *.py[cod]
 
-results/
 .vscode/
+
+3rdparty/
+__MACOSX/

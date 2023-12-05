@@ -38,5 +38,8 @@ unzip SMAC_Maps.zip
 mv SMAC_Maps $MAP_DIR
 rm -rf SMAC_Maps.zip
 
+wget https://github.com/ndhuynh02/smac/blob/master/smac/env/starcraft2/maps/SMAC_Maps/50m_vs_2c.SC2Map
+mv 50m_vs_2c.SC2Map $MAP_DIR/SMAC_Maps/
+
 echo 'StarCraft II and SMAC are installed.'
 
