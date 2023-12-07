@@ -8,6 +8,7 @@ pygame
 
 # PyTorch
 torch
+torch-scatter
 
 # Logger
 tensorflow
@@ -19,3 +20,5 @@ git+https://github.com/ndhuynh02/smac.git
 
 # Other
 sacred
+einops
+gym

@@ -1,7 +1,6 @@
 import torch as th
 from torch.distributions import Categorical
 from .epsilon_schedules import DecayThenFlatSchedule
-
 REGISTRY = {}
 
 
@@ -48,7 +47,7 @@ class EpsilonGreedyActionSelector():
 
         if test_mode:
             # Greedy action selection only
-            self.epsilon = 0.0
+            self.epsilon = self.args.evaluation_epsilon
 
         # mask actions that are excluded from selection
         masked_q_values = agent_inputs.clone()
@@ -63,3 +62,17 @@ class EpsilonGreedyActionSelector():
 
 
 REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
+
+
+class SoftPoliciesSelector():
+
+    def __init__(self, args):
+        self.args = args
+
+    def select_action(self, agent_inputs, avail_actions, t_env, test_mode=False):
+        m = Categorical(agent_inputs)
+        picked_actions = m.sample().long()
+        return picked_actions
+
+
+REGISTRY["soft_policies"] = SoftPoliciesSelector

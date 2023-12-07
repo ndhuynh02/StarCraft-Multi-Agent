@@ -18,8 +18,12 @@ class ParallelRunner:
         # Make subprocesses for the envs
         self.parent_conns, self.worker_conns = zip(*[Pipe() for _ in range(self.batch_size)])
         env_fn = env_REGISTRY[self.args.env]
-        self.ps = [Process(target=env_worker, args=(worker_conn, CloudpickleWrapper(partial(env_fn, **self.args.env_args))))
-                            for worker_conn in self.worker_conns]
+        env_args = [self.args.env_args.copy() for _ in range(self.batch_size)]
+        for i in range(self.batch_size):
+            env_args[i]["seed"] += i
+
+        self.ps = [Process(target=env_worker, args=(worker_conn, CloudpickleWrapper(partial(env_fn, **env_arg))))
+                            for env_arg, worker_conn in zip(env_args, self.worker_conns)]
 
         for p in self.ps:
             p.daemon = True
@@ -52,7 +56,7 @@ class ParallelRunner:
         return self.env_info
 
     def save_replay(self):
-        pass
+        self.parent_conns[0].send(("save_replay", None))
 
     def close_env(self):
         for parent_conn in self.parent_conns:
@@ -113,6 +117,8 @@ class ParallelRunner:
                     if not terminated[idx]: # Only send the actions to the env if it hasn't terminated
                         parent_conn.send(("step", cpu_actions[action_idx]))
                     action_idx += 1 # actions is not a list over every env
+                    if idx == 0 and test_mode and self.args.render:
+                        parent_conn.send(("render", None))
 
             # Update envs_not_terminated
             envs_not_terminated = [b_idx for b_idx, termed in enumerate(terminated) if not termed]
@@ -248,6 +254,10 @@ def env_worker(remote, env_fn):
             remote.send(env.get_env_info())
         elif cmd == "get_stats":
             remote.send(env.get_stats())
+        elif cmd == "render":
+            env.render()
+        elif cmd == "save_replay":
+            env.save_replay()
         else:
             raise NotImplementedError
 

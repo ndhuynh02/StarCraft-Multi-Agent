@@ -142,7 +142,7 @@ class QLearner:
             self.logger.log_stat("td_loss", td_loss.item(), t_env)
             self.logger.log_stat("opt_loss", opt_loss.item(), t_env)
             self.logger.log_stat("nopt_loss", nopt_loss.item(), t_env)
-            self.logger.log_stat("grad_norm", grad_norm, t_env)
+            self.logger.log_stat("grad_norm", grad_norm.item(), t_env)
             if self.args.mixer == "qtran_base":
                 mask_elems = mask.sum().item()
                 self.logger.log_stat("td_error_abs", (masked_td_error.abs().sum().item()/mask_elems), t_env)
@@ -156,14 +156,13 @@ class QLearner:
         self.target_mac.load_state(self.mac)
         if self.mixer is not None:
             self.target_mixer.load_state_dict(self.mixer.state_dict())
-        self.logger.console_logger.info("Updated target network")
 
     def cuda(self):
-        self.mac.cuda().device(int(self.args.device_id))
-        self.target_mac.cuda().device(int(self.args.device_id))
+        self.mac.cuda()
+        self.target_mac.cuda()
         if self.mixer is not None:
-            self.mixer.cuda().device(int(self.args.device_id))
-            self.target_mixer.cuda().device(int(self.args.device_id))
+            self.mixer.cuda()
+            self.target_mixer.cuda()
 
     def save_models(self, path):
         self.mac.save_models(path)

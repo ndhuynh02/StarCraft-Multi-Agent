@@ -35,21 +35,7 @@ class BasicMAC:
                 # Make the logits for unavailable actions very negative to minimise their affect on the softmax
                 reshaped_avail_actions = avail_actions.reshape(ep_batch.batch_size * self.n_agents, -1)
                 agent_outs[reshaped_avail_actions == 0] = -1e10
-
             agent_outs = th.nn.functional.softmax(agent_outs, dim=-1)
-            if not test_mode:
-                # Epsilon floor
-                epsilon_action_num = agent_outs.size(-1)
-                if getattr(self.args, "mask_before_softmax", True):
-                    # With probability epsilon, we will pick an available action uniformly
-                    epsilon_action_num = reshaped_avail_actions.sum(dim=1, keepdim=True).float()
-
-                agent_outs = ((1 - self.action_selector.epsilon) * agent_outs
-                               + th.ones_like(agent_outs) * self.action_selector.epsilon/epsilon_action_num)
-
-                if getattr(self.args, "mask_before_softmax", True):
-                    # Zero out the unavailable actions
-                    agent_outs[reshaped_avail_actions == 0] = 0.0
 
         return agent_outs.view(ep_batch.batch_size, self.n_agents, -1)
 
@@ -63,7 +49,7 @@ class BasicMAC:
         self.agent.load_state_dict(other_mac.agent.state_dict())
 
     def cuda(self):
-        self.agent.cuda(int(self.args.device_id))
+        self.agent.cuda()
 
     def save_models(self, path):
         th.save(self.agent.state_dict(), "{}/agent.th".format(path))
